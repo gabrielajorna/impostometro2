@@ -132,7 +132,12 @@
                         },
                         ticks: {
                             callback: function(value) {
-                                return 'R$ ' + value.toLocaleString();
+                                // Exibe o valor em milhares com 'k', mas só para valores maiores que 1.000
+                                if (value >= 1000) {
+                                    return Math.round(value / 1000).toLocaleString('pt-BR') + 'k';
+                                } else {
+                                    return 'R$ ' + value.toLocaleString('pt-BR');
+                                }
                             }
                         }
                     },
@@ -153,11 +158,13 @@
                             label: function(tooltipItem) {
                                 const year = parseInt(tooltipItem.label);
                                 const total = dataByYear[year];
-                                const perCapita = calculatePerCapita(year);
+                                const value = tooltipItem.raw;
 
-                                return tooltipItem.dataset.label + ': R$ ' + tooltipItem.raw.toLocaleString() +
-                                    ' (Total por ano: R$ ' + total.toLocaleString() +
-                                    ', Imposto per capita: R$ ' + perCapita.toFixed(2) + ')';
+                                // Calcular a porcentagem do valor em relação ao total do ano
+                                const percentage = ((value / total) * 100).toFixed(2);
+                                const perCapita = calculatePerCapita(year).toFixed(2);
+
+                                return tooltipItem.dataset.label + ': ' + percentage + '% do total do ano\nImposto per capita: R$ ' + perCapita;
                             }
                         }
                     },
@@ -167,7 +174,7 @@
                         align: 'center',
                         anchor: 'center',
                         formatter: function(value) {
-                            return 'R$ ' + value.toLocaleString();
+                            return 'R$ ' + Math.round(value / 1000).toLocaleString('pt-BR') + 'k';  // Exibe valores arredondados com 'k' nos rótulos das barras
                         }
                     }
                 }
